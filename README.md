@@ -1,4 +1,4 @@
 # mybatisOeration
 first time to use mybatis。
-# 第一次上传github
-# mybatis操作，包括dao实现和mapping实现，未写完。
+＃第一次上传github
+MyBatis的的的的的的的的操作，自己学习的代码，还未全部实现。
