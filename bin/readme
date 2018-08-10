@@ -1,0 +1,15 @@
+--------------这是一个mtbatis的项目结构示例---------------
+//lib是依赖包
+//mybatis-3.4.6.jar核心包
+//mybatis-3.4.6.pdf操作指南
+新建folder名：lib，将mybatis的jar包和jdbc连接包导入
+将lib下所有文件add to build path
+创建配置文件夹，config
+新建配置文件log4j，这是junit的测试用的配置文件，设置为DEBUG模式
+在pdf操作指南中copy配置
+配置mybatis的全局配置文件，在pdf的Geeting Started里面复制
+
+---------开始根据需求做，在企业开发中的一般步骤----------------
+在映射文件中配置sql语句，同时完成xml文件中需要的返回类po的创建
+在SqlMapConfig中加载映射文件
+创建会话工厂SqlSessionFactory

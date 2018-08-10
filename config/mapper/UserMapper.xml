@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace命名空間，在mapper.xml中namespace等于mapper接口地址 -->
+<mapper namespace="com.weily.mybatis.mapper.UserMapper">
+
+	<!-- //////////////////////////////////////////////////////// -->
+	<!-- 定义sql片段，id是sql片段的唯一标识 -->
+	<sql id="query_user_where">
+		<if test="userCustom!=null">
+			<if test="userCustom.sex!=null and userCustom.sex!=''">
+				and user.sex = #{userCustom.sex}
+			</if>
+			<if test="userCustom.username!=null and userCustom.username!=''">
+				and user.username LIKE '%${userCustom.username}%'
+			</if>
+		</if>
+	</sql>
+	<!-- //////////////////////////////////////////////////////// -->
+	<!-- 定义resultMap 将SELECT id id_,username username_,FROM USER 和User类中的属性做一个映射 
+		type：resultMap最终映射的java对象类型，可以使用别名 id：对resultMap的唯一标识 -->
+	<resultMap type="user" id="userResultMap">
+		<!-- id:查询结果集中唯一标识； column:查询出来的列名 property:type指定的pojo类型中的属性名 最终resultMap对column和property做一个映射关系（对应关系） -->
+		<id column="id_" property="id" />
+		<!-- result:对普通名映射定义 column:查询出来的列名 property:type指定的pojo类型中的属性名 最终resultMap对column和property做一个映射关系（对应关系） -->
+		<result column="username_" property="username" />
+	</resultMap>
+
+
+	<!-- 用户信息综合查询,此处是性别和用户名的复合条件 -->
+	<select id="findUserList" parameterType="UserQueryVo"
+		resultType="UserCustom">
+		SELECT * FROM USER WHERE user.sex = #{userCustom.sex} AND
+		user.username LIKE '%${userCustom.username}%'
+	</select>
+
+	<!-- //////////////////////////////////////////////////////// -->
+	<!-- 用户信息综合查询总数,动态sql实现 -->
+	<select id="findUserCount" parameterType="UserQueryVo"
+		resultType="int">
+		SELECT COUNT(*) FROM USER
+		<where>
+		<!-- 如果引用的sql片段不在本mapper文件中，前面加上namespace -->
+			<include refid="query_user_where"></include>
+		</where>
+	</select>
+	<!-- //////////////////////////////////////////////////////// -->
+	<!-- 配置sql语句 -->
+	<!-- 需求：通过id 查（select） 用户表的记录 -->
+	<!-- 通过select执行数据库查询 id：标识映射文件中的sql，称为statement的id 将来sql语句封装到mappedstatement对象中 -->
+	<!-- parameterType指定参数类型,#{}中的id表示接收输入的参数，参数名称就是id resultType指定sql输出结果的所映射的java对象类型 -->
+	<select id="findUserById" parameterType="int" resultType="user">
+		SELECT
+		* FROM USER WHERE id=#{value}
+	</select>
+
+	<!-- //////////////////////////////////////////////////////// -->
+	<!-- 根据名称 模糊查询 用户信息，可能返回多条 ResultType：指定就是单条记录所映射的java对象类型 使用%$...%可能引起sql注入 -->
+	<select id="findUserByName" parameterType="java.lang.String"
+		resultType="user">
+		SELECT * FROM USER WHERE username LIKE '%${value}%'
+	</select>
+
+
+	<!-- //////////////////////////////////////////////////////// -->
+	<!-- 添加用户（insert） -->
+	<!-- parameterType:指定输入参数类型是pojo（包括用户信息） -->
+	<insert id="insertUser" parameterType="user">
+		<!-- 將插入數據的主鍵返回到user對象中 keyProperty:將查詢到的主鍵值設置到parameterType指定的對象的哪個屬性 
+			order:SELECT LAST_INSERT_ID()執行順序，相對於insert resultType:指定SELECT LAST_INSERT_ID()的結果類型 -->
+		<selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+		insert into user(username,birthday,sex,address)
+		value(#{username},#{birthday},#{sex},#{address})
+	</insert>
+
+
+	<!-- //////////////////////////////////////////////////////// -->
+	<!-- 刪除用戶 -->
+	<!-- 根據id刪除用戶，需要輸入id值 -->
+	<delete id="deleteUser" parameterType="java.lang.Integer">
+		delete from user where
+		id=#{id}
+	</delete>
+
+
+	<!-- //////////////////////////////////////////////////////// -->
+	<!-- 更新用戶 -->
+	<!-- 需要傳入用戶的id值，傳入用戶的更新信息 parameterType指定user對象，包括id和更新信息，注意id是必須存在 -->
+	<update id="updateUser" parameterType="user">
+		update user set
+		username=#{username},birthday=#{birthday},sex=#{sex},address=#{address}
+		where id=#{id}
+	</update>
+
+	<!-- //////////////////////////////////////////////////////// -->
+	<select id="findUserByIdResultMap" parameterType="int"
+		resultType="userResultMap">
+		SELECT id id_,username username_ FROM USER WHERE
+		id=#{value}
+	</select>
+
+</mapper>

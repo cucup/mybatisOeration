@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace命名空間，作用是對sql進行分類話管理，理解sql隔離 -->
+<mapper namespace="test">
+	<!-- 配置sql语句 -->
+
+	<!-- 需求：通过id 查（select） 用户表的记录 -->
+
+	<!-- 通过select执行数据库查询 id：标识映射文件中的sql，称为statement的id 将来sql语句封装到mappedstatement对象中 -->
+
+	<!-- parameterType指定参数类型,#{}中的id表示接收输入的参数，参数名称就是id resultType指定sql输出结果的所映射的java对象类型 -->
+	<select id="findUserById" parameterType="int"
+		resultType="com.weily.mybatis.po.User">
+		SELECT * FROM USER WHERE id=#{value}
+	</select>
+	<!-- 根据名称 模糊查询 用户信息，可能返回多条 ResultType：指定就是单条记录所映射的java对象类型 使用%$...%可能引起sql注入 -->
+	<select id="findUserByName" parameterType="java.lang.String"
+		resultType="com.weily.mybatis.po.User">
+		SELECT * FROM USER WHERE username LIKE '%${value}%'
+	</select>
+
+	<!-- 添加用户（insert） -->
+	<!-- parameterType:指定输入参数类型是pojo（包括用户信息） -->
+	<insert id="insertUser" parameterType="com.weily.mybatis.po.User">
+	<!-- 
+		將插入數據的主鍵返回到user對象中
+		keyProperty:將查詢到的主鍵值設置到parameterType指定的對象的哪個屬性
+		order:SELECT LAST_INSERT_ID()執行順序，相對於insert
+		resultType:指定SELECT LAST_INSERT_ID()的結果類型
+	-->
+	<selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+		SELECT LAST_INSERT_ID()
+	</selectKey>
+		insert into user(username,birthday,sex,address) value(#{username},#{birthday},#{sex},#{address})
+	</insert>
+
+	<!-- 刪除用戶 -->
+	<!-- 根據id刪除用戶，需要輸入id值 -->
+	<delete id="deleteUser" parameterType="java.lang.Integer">
+		delete from user where id=#{id}
+	</delete>
+
+	<!-- 更新用戶 -->
+	<!-- 需要傳入用戶的id值，傳入用戶的更新信息 parameterType指定user對象，包括id和更新信息，注意id是必須存在 -->
+	<update id="updateUser" parameterType="com.weily.mybatis.po.User">
+		update user set username=#{username},birthday=#{birthday},sex=#{sex},address=#{address} 
+		where id=#{id}
+	</update>
+</mapper>
